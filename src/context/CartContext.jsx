@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import axios from 'axios';
+import apiClient from '../axiosConfig';
 import { useAuth } from './AuthContext';
 
 const CartContext = createContext();
@@ -21,7 +21,7 @@ export const CartProvider = ({ children }) => {
     const loadCartFromDB = async () => {
       if (user && user.role === 'Customer') {
         try {
-          const response = await axios.get('/api/customer/cart');
+          const response = await apiClient.get('/api/customer/cart');
           setCartItems(response.data.items || []);
         } catch (error) {
           console.error('Error loading cart:', error);
@@ -40,7 +40,7 @@ export const CartProvider = ({ children }) => {
 
     const timeoutId = setTimeout(async () => {
       try {
-        await axios.put('/api/customer/cart', { items: cartItems });
+        await apiClient.put('/api/customer/cart', { items: cartItems });
       } catch (error) {
         console.error('Error syncing cart:', error);
       }
@@ -95,7 +95,7 @@ export const CartProvider = ({ children }) => {
     setCartItems([]);
     if (user && user.role === 'Customer') {
       try {
-        await axios.delete('/api/customer/cart');
+        await apiClient.delete('/api/customer/cart');
       } catch (error) {
         console.error('Error clearing cart:', error);
       }

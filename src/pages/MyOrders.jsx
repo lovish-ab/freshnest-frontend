@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import Header from '../components/Header';
-import axios from 'axios';
-
+import apiClient from '../axiosConfig';
 const MyOrders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -9,7 +8,7 @@ const MyOrders = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const response = await axios.get('/api/customer/orders');
+        const response = await apiClient.get('/api/customer/orders');
         console.log('Orders response:', response.data);
         setOrders(response.data || []);
         setLoading(false);

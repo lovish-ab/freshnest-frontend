@@ -2,8 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import { useCart } from '../context/CartContext';
-import axios from 'axios';
-
+import apiClient from '../axiosConfig';
 const Checkout = () => {
   const { cartItems, getTotalPrice, clearCart } = useCart();
   const [shippingAddress, setShippingAddress] = useState('');
@@ -20,7 +19,7 @@ const Checkout = () => {
 
   const fetchAddresses = async () => {
     try {
-      const response = await axios.get('/api/customer/addresses');
+      const response = await apiClient.get('/api/customer/addresses');
       setSavedAddresses(response.data);
     } catch (error) {
       console.error('Error fetching addresses:', error);
@@ -57,7 +56,7 @@ const Checkout = () => {
         quantity: item.quantity,
       }));
 
-      await axios.post('/api/customer/orders', {
+      await apiClient.post('/api/customer/orders', {
         items: orderItems,
         shippingAddress: finalAddress,
       });

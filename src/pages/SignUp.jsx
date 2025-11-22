@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+// import axios from 'axios';
+import apiClient from '../axiosConfig';
 import { useAuth } from '../context/AuthContext';
 import Header from '../components/Header';
 
@@ -26,7 +27,7 @@ const SignUp = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post('/api/auth/signup', formData);
+      const response = await apiClient.post('/api/auth/signup', formData);
       login(response.data.token, response.data.user);
       navigate('/customer/dashboard');
     } catch (err) {

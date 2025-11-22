@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 import Header from '../components/Header';
 import ProductCard from '../components/ProductCard';
-import axios from 'axios';
-
+import apiClient from '../axiosConfig';
 const CustomerDashboard = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -11,7 +10,7 @@ const CustomerDashboard = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await axios.get('/api/products');
+        const response = await apiClient.get('/api/products');
         setProducts(response.data);
         setLoading(false);
       } catch (error) {

@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import Header from "../components/Header";
-import axios from "axios";
-
+import apiClient from "../axiosConfig";
 const SellerDashboard = () => {
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
@@ -25,7 +24,7 @@ const SellerDashboard = () => {
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get("/api/seller/products");
+      const response = await apiClient.get("/api/seller/products");
       setProducts(response.data);
       setLoading(false);
     } catch (error) {
@@ -36,7 +35,7 @@ const SellerDashboard = () => {
 
   const fetchOrders = async () => {
     try {
-      const response = await axios.get("/api/seller/orders");
+      const response = await apiClient.get("/api/seller/orders");
       setOrders(response.data);
     } catch (error) {
       console.error("Error fetching orders:", error);
@@ -68,7 +67,7 @@ const SellerDashboard = () => {
     });
 
     try {
-      await axios.post("/api/seller/products", data, {
+      await apiClient.post("/api/seller/products", data, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       setShowAddModal(false);
@@ -116,7 +115,7 @@ const SellerDashboard = () => {
     });
 
     try {
-      await axios.put(`/api/seller/products/${editingProduct.id}`, data, {
+      await apiClient.put(`/api/seller/products/${editingProduct.id}`, data, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       setShowEditModal(false);
@@ -139,7 +138,7 @@ const SellerDashboard = () => {
     }
 
     try {
-      await axios.delete(`/api/seller/products/${id}`);
+      await apiClient.delete(`/api/seller/products/${id}`);
       fetchProducts();
     } catch (err) {
       alert(err.response?.data?.error || "Failed to delete product");
