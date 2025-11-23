@@ -45,17 +45,68 @@ const SellerDashboard = () => {
   const handleInputChange = (e) => {
     if (e.target.name === "image") {
       setFormData({ ...formData, image: e.target.files[0] });
+    } else if (e.target.name === "name") {
+      const value = e.target.value.replace(/[0-9]/g, '');
+      setFormData({ ...formData, [e.target.name]: value });
     } else {
       setFormData({ ...formData, [e.target.name]: e.target.value });
     }
+  };
+
+  const validateProductForm = (isAdding = false) => {
+    if (!formData.name.trim()) {
+      setError("Product name is required");
+      return false;
+    }
+    if (formData.name.trim().length < 2) {
+      setError("Product name must be at least 2 characters long");
+      return false;
+    }
+    const nameRegex = /^[a-zA-Z0-9\s'-]+$/;
+    const strictNameRegex = /^[a-zA-Z\s'-]+$/;
+    if (!strictNameRegex.test(formData.name.trim())) {
+      setError("Product name should only contain letters, spaces, hyphens, and apostrophes");
+      return false;
+    }
+
+    if (!formData.mrp || formData.mrp.trim() === "") {
+      setError("MRP is required");
+      return false;
+    }
+    const mrpValue = parseFloat(formData.mrp);
+    if (isNaN(mrpValue) || mrpValue < 0) {
+      setError("MRP must be a valid positive number");
+      return false;
+    }
+
+    if (!formData.currentPrice || formData.currentPrice.trim() === "") {
+      setError("Current price is required");
+      return false;
+    }
+    const currentPriceValue = parseFloat(formData.currentPrice);
+    if (isNaN(currentPriceValue) || currentPriceValue < 0) {
+      setError("Current price must be a valid positive number");
+      return false;
+    }
+
+    if (currentPriceValue > mrpValue) {
+      setError("Current price must be less than or equal to MRP");
+      return false;
+    }
+
+    if (isAdding && !formData.image) {
+      setError("Product image is required");
+      return false;
+    }
+
+    return true;
   };
 
   const handleAddProduct = async (e) => {
     e.preventDefault();
     setError("");
 
-    if (parseFloat(formData.currentPrice) > parseFloat(formData.mrp)) {
-      setError("Current price must be less than or equal to MRP");
+    if (!validateProductForm(true)) {
       return;
     }
 
@@ -98,12 +149,7 @@ const SellerDashboard = () => {
     e.preventDefault();
     setError("");
 
-    if (
-      formData.currentPrice &&
-      formData.mrp &&
-      parseFloat(formData.currentPrice) > parseFloat(formData.mrp)
-    ) {
-      setError("Current price must be less than or equal to MRP");
+    if (!validateProductForm(false)) {
       return;
     }
 
@@ -390,6 +436,7 @@ const SellerDashboard = () => {
                     name="image"
                     accept="image/*"
                     onChange={handleInputChange}
+                    required
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg"
                   />
                 </div>
@@ -443,7 +490,13 @@ const SellerDashboard = () => {
                     value={formData.name}
                     onChange={handleInputChange}
                     required
+                    minLength={2}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                    onBlur={(e) => {
+                      if (e.target.value && !e.target.value.trim()) {
+                        setError("Product name cannot be empty");
+                      }
+                    }}
                   />
                 </div>
                 <div>
@@ -459,6 +512,12 @@ const SellerDashboard = () => {
                     min="0"
                     step="0.01"
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                    onBlur={(e) => {
+                      const value = parseFloat(e.target.value);
+                      if (e.target.value && (isNaN(value) || value < 0)) {
+                        setError("MRP must be a valid positive number");
+                      }
+                    }}
                   />
                 </div>
                 <div>
@@ -474,6 +533,12 @@ const SellerDashboard = () => {
                     min="0"
                     step="0.01"
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                    onBlur={(e) => {
+                      const value = parseFloat(e.target.value);
+                      if (e.target.value && (isNaN(value) || value < 0)) {
+                        setError("Current price must be a valid positive number");
+                      }
+                    }}
                   />
                 </div>
                 <div>

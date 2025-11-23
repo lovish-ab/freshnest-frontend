@@ -1,13 +1,15 @@
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const ProductCard = ({ product }) => {
   const { addToCart } = useCart();
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   const handleAddToCart = () => {
     if (!user || user.role !== "Customer") {
-      alert("Please sign in as a customer to add items to cart");
+      navigate("/signin");
       return;
     }
     addToCart(product);
@@ -42,14 +44,12 @@ const ProductCard = ({ product }) => {
             </span>
           )}
         </div>
-        {user && user.role === "Customer" && (
-          <button
-            onClick={handleAddToCart}
-            className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition"
-          >
-            Add to Cart
-          </button>
-        )}
+        <button
+          onClick={handleAddToCart}
+          className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition"
+        >
+          Add to Cart
+        </button>
       </div>
     </div>
   );

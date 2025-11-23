@@ -43,8 +43,13 @@ const Checkout = () => {
       }
     }
 
-    if (!finalAddress) {
+    if (!finalAddress || !finalAddress.trim()) {
       setError('Please provide a shipping address');
+      return;
+    }
+
+    if (finalAddress.trim().length < 10) {
+      setError('Shipping address must be at least 10 characters long');
       return;
     }
 
@@ -146,8 +151,16 @@ const Checkout = () => {
                       onChange={(e) => setShippingAddress(e.target.value)}
                       required={!useSavedAddress || !selectedAddressId}
                       rows="4"
+                      minLength={10}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="Enter your complete shipping address"
+                      onBlur={(e) => {
+                        if (e.target.value && !e.target.value.trim()) {
+                          setError('Shipping address cannot be empty');
+                        } else if (e.target.value && e.target.value.trim().length < 10) {
+                          setError('Shipping address must be at least 10 characters long');
+                        }
+                      }}
                     />
                   </div>
                 </form>
@@ -203,6 +216,3 @@ const Checkout = () => {
 };
 
 export default Checkout;
-
-
-

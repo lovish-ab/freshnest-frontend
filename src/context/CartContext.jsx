@@ -16,7 +16,7 @@ export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
   const { user } = useAuth();
 
-  // Load cart from database when user logs in
+
   useEffect(() => {
     const loadCartFromDB = async () => {
       if (user && user.role === 'Customer') {
@@ -34,7 +34,7 @@ export const CartProvider = ({ children }) => {
     loadCartFromDB();
   }, [user]);
 
-  // Sync cart to database whenever it changes (with debounce to avoid too many requests)
+
   useEffect(() => {
     if (!user || user.role !== 'Customer') return;
 
@@ -44,7 +44,7 @@ export const CartProvider = ({ children }) => {
       } catch (error) {
         console.error('Error syncing cart:', error);
       }
-    }, 500); // Debounce for 500ms
+    }, 500); 
 
     return () => clearTimeout(timeoutId);
   }, [cartItems, user]);
@@ -121,6 +121,3 @@ export const CartProvider = ({ children }) => {
     </CartContext.Provider>
   );
 };
-
-
-

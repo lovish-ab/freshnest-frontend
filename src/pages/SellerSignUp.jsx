@@ -19,13 +19,63 @@ const SellerSignUp = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const validateForm = () => {
+    // Full Name validation
+    if (!formData.fullName.trim()) {
+      setError('Full name is required');
+      return false;
+    }
+    if (formData.fullName.trim().length < 2) {
+      setError('Full name must be at least 2 characters long');
+      return false;
+    }
+    // Check for numbers in name
+    const nameRegex = /^[a-zA-Z\s'-]+$/;
+    if (!nameRegex.test(formData.fullName.trim())) {
+      setError('Full name should only contain letters, spaces, hyphens, and apostrophes');
+      return false;
+    }
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!formData.email.trim()) {
+      setError('Email is required');
+      return false;
+    }
+    if (!emailRegex.test(formData.email.trim())) {
+      setError('Please enter a valid email address');
+      return false;
+    }
+
+    // Password validation
+    if (!formData.password.trim()) {
+      setError('Password is required');
+      return false;
+    }
+    if (formData.password.length < 8) {
+      setError('Password must be at least 8 characters long');
+      return false;
+    }
+
+    return true;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    
+    if (!validateForm()) {
+      return;
+    }
+
     setLoading(true);
 
     try {
-      const response = await apiClient.post('/api/auth/seller/signup', formData);
+      const response = await apiClient.post('/api/auth/seller/signup', {
+        fullName: formData.fullName.trim(),
+        email: formData.email.trim(),
+        password: formData.password
+      });
       login(response.data.token, response.data.user);
       navigate('/seller/dashboard');
     } catch (err) {
@@ -59,9 +109,19 @@ const SellerSignUp = () => {
                 type="text"
                 name="fullName"
                 value={formData.fullName}
-                onChange={handleChange}
+                onChange={(e) => {
+                  // Prevent numbers from being entered
+                  const value = e.target.value.replace(/[0-9]/g, '');
+                  setFormData({ ...formData, fullName: value });
+                }}
                 required
+                minLength={2}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                onBlur={(e) => {
+                  if (e.target.value && !e.target.value.trim()) {
+                    setError('Full name cannot be empty');
+                  }
+                }}
               />
             </div>
 
@@ -76,6 +136,11 @@ const SellerSignUp = () => {
                 onChange={handleChange}
                 required
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                onBlur={(e) => {
+                  if (e.target.value && !e.target.value.trim()) {
+                    setError('Email cannot be empty');
+                  }
+                }}
               />
             </div>
 
@@ -89,7 +154,13 @@ const SellerSignUp = () => {
                 value={formData.password}
                 onChange={handleChange}
                 required
+                minLength={8}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                onBlur={(e) => {
+                  if (e.target.value && e.target.value.length < 8) {
+                    setError('Password must be at least 8 characters long');
+                  }
+                }}
               />
             </div>
 
@@ -117,6 +188,3 @@ const SellerSignUp = () => {
 };
 
 export default SellerSignUp;
-
-
-

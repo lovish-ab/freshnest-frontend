@@ -1,17 +1,32 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import ProductCard from '../components/ProductCard';
 import apiClient from '../axiosConfig';
+import { useAuth } from '../context/AuthContext';
+
 const LandingPage = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
+    if (user && user.role === 'Seller') {
+      navigate('/seller/dashboard', { replace: true });
+      return;
+    }
+  }, [user, navigate]);
+
+  useEffect(() => {
+    if (user && user.role === 'Seller') {
+      return;
+    }
+
     const fetchProducts = async () => {
       try {
         const response = await apiClient.get('/api/products');
-        setProducts(response.data.slice(0, 8)); // Show first 8 products
+        setProducts(response.data.slice(0, 8));
         setLoading(false);
       } catch (error) {
         console.error('Error fetching products:', error);
@@ -20,13 +35,12 @@ const LandingPage = () => {
     };
 
     fetchProducts();
-  }, []);
+  }, [user]);
 
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
       
-      {/* Hero Section */}
       <section className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-20">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-5xl font-bold mb-4">Welcome to FreshNest</h1>
@@ -39,19 +53,18 @@ const LandingPage = () => {
               Become a Seller
             </Link>
             <Link
-              to="/signup"
+              to="/products"
               className="px-6 py-3 bg-transparent border-2 border-white text-white rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition"
             >
-              Start Shopping
+              View All Products
             </Link>
           </div>
         </div>
       </section>
 
-      {/* Featured Products */}
       <section className="container mx-auto px-4 py-16">
         <h2 className="text-3xl font-bold text-gray-800 mb-8 text-center">
-          Featured Products
+          Recently Added Products
         </h2>
         
         {loading ? (
@@ -69,21 +82,9 @@ const LandingPage = () => {
             ))}
           </div>
         )}
-
-        <div className="text-center mt-8">
-          <Link
-            to="/customer/dashboard"
-            className="inline-block px-6 py-3 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600 transition"
-          >
-            View All Products
-          </Link>
-        </div>
       </section>
     </div>
   );
 };
 
 export default LandingPage;
-
-
-

@@ -15,20 +15,24 @@ const SignIn = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
     setLoading(true);
 
     try {
-      const response = await apiClient.post('/api/auth/signin', formData);
+      const response = await apiClient.post('/api/auth/signin', {
+        email: formData.email.trim(),
+        password: formData.password
+      });
       login(response.data.token, response.data.user);
       
-      // Redirect based on role
       if (response.data.user.role === 'Seller') {
         navigate('/seller/dashboard');
       } else {
-        navigate('/customer/dashboard');
+        navigate('/products');
       }
     } catch (err) {
       setError(err.response?.data?.error || 'Sign in failed');
@@ -62,6 +66,11 @@ const SignIn = () => {
                 onChange={handleChange}
                 required
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                onBlur={(e) => {
+                  if (e.target.value && !e.target.value.trim()) {
+                    setError('Email cannot be empty');
+                  }
+                }}
               />
             </div>
 
@@ -75,7 +84,13 @@ const SignIn = () => {
                 value={formData.password}
                 onChange={handleChange}
                 required
+                minLength={8}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                onBlur={(e) => {
+                  if (e.target.value && e.target.value.length < 8) {
+                    setError('Password must be at least 8 characters long');
+                  }
+                }}
               />
             </div>
 
@@ -109,6 +124,3 @@ const SignIn = () => {
 };
 
 export default SignIn;
-
-
-
