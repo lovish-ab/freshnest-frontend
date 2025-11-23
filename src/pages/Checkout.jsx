@@ -13,18 +13,18 @@ const Checkout = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchAddresses();
-  }, []);
+  // useEffect(() => {
+  //   fetchAddresses();
+  // }, []);
 
-  const fetchAddresses = async () => {
-    try {
-      const response = await apiClient.get('/api/customer/addresses');
-      setSavedAddresses(response.data);
-    } catch (error) {
-      console.error('Error fetching addresses:', error);
-    }
-  };
+  // const fetchAddresses = async () => {
+  //   try {
+  //     const response = await apiClient.get('/api/customer/addresses');
+  //     setSavedAddresses(response.data);
+  //   } catch (error) {
+  //     console.error('Error fetching addresses:', error);
+  //   }
+  // };
 
   const handlePlaceOrder = async (e) => {
     e.preventDefault();
