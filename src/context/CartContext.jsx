@@ -14,6 +14,7 @@ export const useCart = () => {
 
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
+  const [cartId, setCartId] = useState(null);
   const { user } = useAuth();
 
 
@@ -23,11 +24,15 @@ export const CartProvider = ({ children }) => {
         try {
           const response = await apiClient.get('/api/customer/cart');
           setCartItems(response.data.items || []);
+          setCartId(response.data.id);
         } catch (error) {
           console.error('Error loading cart:', error);
+          setCartItems([]);
+          setCartId(null);
         }
       } else {
         setCartItems([]);
+        setCartId(null);
       }
     };
 
@@ -36,18 +41,31 @@ export const CartProvider = ({ children }) => {
 
 
   useEffect(() => {
-    if (!user || user.role !== 'Customer') return;
+    if (!user || user.role !== 'Customer' || !cartId) return;
+    
+    // Don't sync if cart is empty (backend validation requires non-empty items)
+    if (cartItems.length === 0) return;
 
     const timeoutId = setTimeout(async () => {
       try {
-        await apiClient.put('/api/customer/cart', { items: cartItems });
+        await apiClient.put(`/api/customer/cart/${cartId}`, { items: cartItems });
       } catch (error) {
-        console.error('Error syncing cart:', error);
+        if (error.response?.status === 400) {
+          console.error('Error syncing cart:', error.response.data.error);
+          // If cart not found, reload cart from server
+          if (error.response.data.error === 'Cart not found') {
+            const response = await apiClient.get('/api/customer/cart');
+            setCartId(response.data.id);
+            setCartItems(response.data.items || []);
+          }
+        } else {
+          console.error('Error syncing cart:', error);
+        }
       }
     }, 500); 
 
     return () => clearTimeout(timeoutId);
-  }, [cartItems, user]);
+  }, [cartItems, user, cartId]);
 
   const addToCart = (product) => {
     setCartItems((prevItems) => {
@@ -96,6 +114,9 @@ export const CartProvider = ({ children }) => {
     if (user && user.role === 'Customer') {
       try {
         await apiClient.delete('/api/customer/cart');
+        // Reload cart to get the updated state (empty cart with same ID)
+        const response = await apiClient.get('/api/customer/cart');
+        setCartId(response.data.id);
       } catch (error) {
         console.error('Error clearing cart:', error);
       }
