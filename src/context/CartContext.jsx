@@ -110,16 +110,24 @@ export const CartProvider = ({ children }) => {
   };
 
   const clearCart = async () => {
-    setCartItems([]);
-    if (user && user.role === 'Customer') {
+    if (user && user.role === 'Customer' && cartId) {
       try {
-        await apiClient.delete('/api/customer/cart');
+        await apiClient.delete(`/api/customer/cart/${cartId}`);
+        setCartItems([]);
         // Reload cart to get the updated state (empty cart with same ID)
         const response = await apiClient.get('/api/customer/cart');
         setCartId(response.data.id);
       } catch (error) {
         console.error('Error clearing cart:', error);
+        if (error.response?.status === 404) {
+          // Cart not found, reload to get a new cart
+          const response = await apiClient.get('/api/customer/cart');
+          setCartId(response.data.id);
+          setCartItems(response.data.items || []);
+        }
       }
+    } else {
+      setCartItems([]);
     }
   };
 
