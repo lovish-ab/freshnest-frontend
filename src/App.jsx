@@ -6,6 +6,7 @@ import SignUp from './pages/SignUp';
 import SellerSignUp from './pages/SellerSignUp';
 import SellerDashboard from './pages/SellerDashboard';
 import CustomerDashboard from './pages/CustomerDashboard';
+import Products from './pages/Products';
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
         <Router>
           <Routes>
             <Route path="/" element={<LandingPage />} />
+            <Route path="/products" element={<Products />} />
             <Route path="/signin" element={<SignIn />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/seller/signup" element={<SellerSignUp />} />
